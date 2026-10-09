@@ -110,6 +110,28 @@
   .grid.marks .g{font-size:30px}
   .cell .nm{font:500 12.5px/1.2 "IBM Plex Sans",sans-serif;color:#4A4F57;text-align:center}
   .cell .n b{color:var(--accent);font-weight:500;letter-spacing:.06em}
+  .cell.on{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent)}
+
+  /* вкладки: числа и знаки проверяются порознь, каждый в своём большом окне */
+  .tabs{display:flex;gap:6px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+  .tab{flex:0 0 auto;min-width:0;background:none;border:1px solid transparent;
+    border-bottom:none;border-radius:10px 10px 0 0;padding:11px 18px;margin-bottom:-1px;
+    font:600 14px/1 "IBM Plex Sans",sans-serif;color:var(--muted)}
+  .tab:hover{background:var(--accent-soft);border-color:transparent;color:var(--ink)}
+  .tab[aria-selected="true"]{background:var(--ground);border-color:var(--line);color:var(--ink)}
+  .tab .k{font:500 11px/1 "IBM Plex Mono",monospace;color:var(--accent);margin-left:6px}
+  .view{display:flex;flex-direction:column;gap:28px}
+  .view[hidden]{display:none}
+
+  .plate.big{min-height:420px;flex-direction:column;gap:18px}
+  .plate .cap{font:500 13px/1.3 "IBM Plex Mono",monospace;color:#8A8F97;text-align:center}
+  .plate .cap b{color:var(--accent);font-weight:500}
+  .stepper{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center}
+  .stepper button{min-width:0;flex:none;padding:10px 14px;font-size:16px}
+  .stepper .pos{font:500 12.5px/1 "IBM Plex Mono",monospace;color:var(--muted);text-align:center}
+  select{width:100%;background:var(--ground);color:var(--ink);border:1px solid var(--line);
+    border-radius:9px;padding:11px 12px;font:500 14px/1.2 "IBM Plex Sans",sans-serif}
+  select:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
   kbd{font:500 12.5px/1 "IBM Plex Mono",monospace;background:var(--ground);
     border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:2px 6px}
 
@@ -148,12 +170,20 @@
       одинаково — и в годе, и в имени.</p>
   </header>
 
+  <nav class="tabs" role="tablist" aria-label="Что показывать">
+    <button class="tab" role="tab" id="tab-num" aria-controls="view-num"
+            aria-selected="true">Числа<span class="k">1–299</span></button>
+    <button class="tab" role="tab" id="tab-marks" aria-controls="view-marks"
+            aria-selected="false">Знаки на монетах<span class="k">44</span></button>
+  </nav>
+
+  <div class="view" id="view-num" role="tabpanel" aria-labelledby="tab-num">
   <div class="bench">
     <div class="panel">
       <div>
-        <label for="num">Число или код знака</label>
-        <input id="num" type="text" value="132" placeholder="132 или jfr"
-               autocomplete="off" autocapitalize="off" spellcheck="false">
+        <label for="num">Число</label>
+        <input id="num" type="text" value="132" placeholder="132" inputmode="numeric"
+               autocomplete="off" spellcheck="false">
       </div>
       <div class="row">
         <button id="svg" class="primary">Скачать SVG</button>
@@ -174,8 +204,7 @@
 
     <div class="plate" id="plate">
       <div class="glyph" id="glyph">132</div>
-      <p class="hint" id="hint" hidden>Введите число от 1 до 299 или код знака
-        из списка ниже</p>
+      <p class="hint" id="hint" hidden>Введите число от 1 до 299</p>
     </div>
   </div>
 
@@ -190,13 +219,45 @@
     </div>
     <div class="grid" id="grid"></div>
   </section>
+  </div>
+
+  <div class="view" id="view-marks" role="tabpanel" aria-labelledby="tab-marks" hidden>
+  <div class="bench">
+    <div class="panel">
+      <div>
+        <label for="mpick">Знак</label>
+        <select id="mpick"></select>
+      </div>
+      <div class="stepper">
+        <button id="mprev" type="button" aria-label="Предыдущий знак">←</button>
+        <span class="pos" id="mpos"></span>
+        <button id="mnext" type="button" aria-label="Следующий знак">→</button>
+      </div>
+      <div class="row">
+        <button id="msvg" class="primary">Скачать SVG</button>
+        <button id="mpng">Скачать PNG</button>
+      </div>
+      <div class="row">
+        <button id="mcopy">Копировать код SVG</button>
+      </div>
+      <p class="dlnote">Стрелки ← → на клавиатуре листают знаки по порядку.
+        В окне знак набран самим шрифтом из его кода — ровно так он выйдет и в
+        документе.</p>
+      <div class="meta" id="mmeta"></div>
+    </div>
+
+    <div class="plate big" id="mplate">
+      <div class="glyph" id="mglyph"></div>
+      <div class="cap" id="mcap"></div>
+    </div>
+  </div>
 
   <section id="marks">
     <div class="sechead">
       <div>
-        <h2>Знаки на монетах</h2>
+        <h2>Все знаки</h2>
         <p>Под каждым знаком — его код: наберите эти три буквы шрифтом «Kufi Numerals»,
-          и они превратятся в знак. Нажмите на карточку, чтобы открыть знак в работе.</p>
+          и они превратятся в знак. Нажмите на карточку, чтобы открыть знак в большом окне.</p>
       </div>
       <input id="mfilter" class="filter" type="search" placeholder="имя или код…"
              aria-label="Поиск знака по имени или коду" autocomplete="off">
@@ -205,6 +266,7 @@
     <p class="dlnote" id="mpdf" hidden>Все знаки с кодами на одном листе А4 —
       <a href="marks.pdf" download>скачать PDF для печати</a>.</p>
   </section>
+  </div>
 
   <section id="install">
     <div class="sechead">
@@ -245,8 +307,8 @@
         <h3>Выберите «Kufi Numerals» и наберите число или знак</h3>
         <p>Число — обычными цифрами: <code>132</code> само превратится в каллиграфию.
           Знак — кодом из трёх латинских букв: <code>jfr</code> даёт «Джафар»,
-          <code>msr</code> — знак двора Миср. Коды всех знаков — <a href="#marks">в
-          списке выше</a>; вместе в одной строке: <code>msr 132</code>.</p>
+          <code>msr</code> — знак двора Миср. Коды всех знаков — <a href="#znaki">во
+          вкладке «Знаки на монетах»</a>; вместе в одной строке: <code>msr 132</code>.</p>
         <p>Текст остаётся текстом — его можно искать, править, менять кегль и цвет. При
           экспорте в PDF шрифт вшивается в файл, и получателю ставить ничего не нужно.</p>
       </li>
@@ -399,18 +461,16 @@ function buildMarkSVG(code){
 function markEm(gn){ return MARKS[gn].w * 0.00072 + 0.12; }
 function fitPx(gn, room, max){ return Math.min(max, Math.floor(room / markEm(gn))); }
 
-/* В поле — либо число, либо код знака. Возвращает {kind, key} или null. */
+/* Вкладка «Числа»: в поле число. Возвращает {kind, key} или null. */
 function valid(){
-  const v = num.value.trim().toLowerCase();
-  if(/^\d+$/.test(v)){
-    const n = parseInt(v, 10);
-    return NUMS[String(n)] ? {kind:"num", key:n} : null;
-  }
-  return CODES[v] ? {kind:"mark", key:v} : null;
+  const v = num.value.trim();
+  if(!/^\d+$/.test(v)) return null;
+  const n = parseInt(v, 10);
+  return NUMS[String(n)] ? {kind:"num", key:n} : null;
 }
 function svgOf(it){ return it.kind === "num" ? buildSVG(it.key) : buildMarkSVG(it.key); }
 function fileOf(it, ext){ return `kufi-${it.key}.${ext}`; }
-const ASK = () => toast(`Введите число от 1 до ${MAX} или код знака`);
+const ASK = () => toast(`Введите число от 1 до ${MAX}`);
 
 function render(){
   const it = valid();
@@ -420,19 +480,7 @@ function render(){
     return;
   }
   hint.hidden = true; plate.classList.remove("empty");
-  if(it.kind === "mark"){
-    const [gn, name] = CODES[it.key];
-    const same = Object.keys(CODES).filter(c => CODES[c][0] === gn);
-    glyph.textContent = it.key;                   // шрифт сам соберёт знак лигатурой
-    glyph.style.fontSize = fitPx(gn, plate.clientWidth - 70, 150) + "px";
-    $("meta").innerHTML =
-        `<div>знак: <b>${name}</b></div>`
-      + `<div>код: <b>${same.join(", ")}</b></div>`
-      + `<div>ширина: <b>${Math.round(MARKS[gn].w)}</b> ед.</div>`;
-    return;
-  }
   const n = it.key;
-  glyph.style.fontSize = "";
   glyph.textContent = String(n);
   const rec = NUMS[String(n)];
   const words = rec.p.map(p => p[0]);
@@ -468,6 +516,8 @@ let DL = null;
   if(!DL){
     $("svg").hidden = true;
     $("png").hidden = true;
+    $("msvg").hidden = true;
+    $("mpng").hidden = true;
     $("ttf").hidden = true;
     $("ttf2").hidden = true;
     $("ttfnote").hidden = true;
@@ -501,13 +551,9 @@ async function save(filename, data){
   }
 }
 
-$("svg").onclick = () => {
-  const it = valid(); if(it === null) return ASK();
-  save(fileOf(it, "svg"), svgOf(it));
-};
+function saveSVG(it){ save(fileOf(it, "svg"), svgOf(it)); }
 
-$("png").onclick = () => {
-  const it = valid(); if(it === null) return ASK();
+function savePNG(it){
   const img = new Image();
   const url = URL.createObjectURL(new Blob([svgOf(it)], {type:"image/svg+xml"}));
   img.onload = () => {
@@ -521,7 +567,16 @@ $("png").onclick = () => {
   };
   img.onerror = () => { URL.revokeObjectURL(url); toast("Не удалось построить PNG"); };
   img.src = url;
-};
+}
+
+async function copySVG(it){
+  try{ await navigator.clipboard.writeText(svgOf(it)); toast("Код SVG скопирован"); }
+  catch(e){ toast("Браузер не дал доступ к буферу обмена"); }
+}
+
+$("svg").onclick  = () => { const it = valid(); it ? saveSVG(it) : ASK(); };
+$("png").onclick  = () => { const it = valid(); it ? savePNG(it) : ASK(); };
+$("copy").onclick = () => { const it = valid(); it ? copySVG(it) : ASK(); };
 
 /* Сам файл шрифта — то, ради чего всё и делалось: его ставят в систему и
    набирают числа прямо в текстовом редакторе. Base64 тот же, что в @font-face. */
@@ -535,12 +590,6 @@ function saveFont(){
 }
 $("ttf").onclick = saveFont;
 $("ttf2").onclick = saveFont;
-
-$("copy").onclick = async () => {
-  const it = valid(); if(it === null) return ASK();
-  try{ await navigator.clipboard.writeText(svgOf(it)); toast("Код SVG скопирован"); }
-  catch(e){ toast("Браузер не дал доступ к буферу обмена"); }
-};
 
 num.addEventListener("input", render);
 
@@ -571,18 +620,69 @@ for(const [c, [gn, name]] of Object.entries(CODES)){
   byGlyph[gn].codes.push(c);
   if(!byGlyph[gn].names.includes(name)) byGlyph[gn].names.push(name);
 }
+const MLIST = Object.entries(byGlyph);     // порядок — по имени, как в CODES
+let mi = 0;                                 // какой знак сейчас в большом окне
+
 const mfrag = document.createDocumentFragment();
-for(const [gn, rec] of Object.entries(byGlyph)){
+for(const [i, [gn, rec]] of MLIST.entries()){
   const b = document.createElement("button");
   b.className = "cell"; b.type = "button";
   b.dataset.q = (rec.names.join(" ") + " " + rec.codes.join(" ")).toLowerCase();
   b.innerHTML = `<span class="g" style="font-size:${fitPx(gn, 200, 30)}px">${rec.codes[0]}</span>`
               + `<span class="nm">${rec.names.join(" · ")}</span>`
               + `<span class="n">код <b>${rec.codes.join(" · ")}</b></span>`;
-  b.onclick = () => { num.value = rec.codes[0]; render(); window.scrollTo({top:0, behavior:"smooth"}); };
+  b.onclick = () => { showMark(i); window.scrollTo({top:0, behavior:"smooth"}); };
   mfrag.appendChild(b);
+  $("mpick").add(new Option(`${rec.names.join(" · ")} — ${rec.codes.join(", ")}`, i));
 }
 mgrid.appendChild(mfrag);
+
+/* Большое окно знака. Знак набран шрифтом из своего кода — проверяется то
+   самое, что получит документ; кегль подгоняется под ширину окна. */
+const mplate = $("mplate"), mglyph = $("mglyph");
+function markItem(){ return {kind:"mark", key:MLIST[mi][1].codes[0]}; }
+function showMark(i){
+  mi = (i + MLIST.length) % MLIST.length;
+  const [gn, rec] = MLIST[mi];
+  mglyph.textContent = rec.codes[0];
+  mglyph.style.fontSize = fitPx(gn, mplate.clientWidth - 80, 240) + "px";
+  $("mcap").innerHTML = `${rec.names.join(" · ")} &nbsp;·&nbsp; код <b>${rec.codes.join(" · ")}</b>`;
+  $("mpos").textContent = `${mi + 1} / ${MLIST.length}`;
+  $("mpick").value = String(mi);
+  $("mmeta").innerHTML =
+      `<div>знак: <b>${rec.names.join(" · ")}</b></div>`
+    + `<div>код: <b>${rec.codes.join(", ")}</b></div>`
+    + `<div>ширина: <b>${Math.round(MARKS[gn].w)}</b> ед.</div>`;
+  for(const [k, c] of [...mgrid.children].entries()) c.classList.toggle("on", k === mi);
+}
+$("mprev").onclick = () => showMark(mi - 1);
+$("mnext").onclick = () => showMark(mi + 1);
+$("mpick").onchange = e => showMark(Number(e.target.value));
+$("msvg").onclick  = () => saveSVG(markItem());
+$("mpng").onclick  = () => savePNG(markItem());
+$("mcopy").onclick = () => copySVG(markItem());
+document.addEventListener("keydown", e => {
+  if($("view-marks").hidden || e.altKey || e.metaKey || e.ctrlKey) return;
+  if(/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName)) return;
+  if(e.key === "ArrowLeft")  { showMark(mi - 1); e.preventDefault(); }
+  if(e.key === "ArrowRight") { showMark(mi + 1); e.preventDefault(); }
+});
+
+/* Вкладки. Выбранная живёт в адресе (#znaki), поэтому ссылку сразу на знаки
+   можно переслать, а «назад» в браузере возвращает на прежнюю вкладку. */
+function showTab(marksTab){
+  $("view-num").hidden = marksTab;
+  $("view-marks").hidden = !marksTab;
+  $("tab-num").setAttribute("aria-selected", String(!marksTab));
+  $("tab-marks").setAttribute("aria-selected", String(marksTab));
+  if(marksTab) showMark(mi);                 // ширину окна знаем только видимой
+}
+$("tab-num").onclick = () => { history.replaceState(null, "", "#"); showTab(false); };
+$("tab-marks").onclick = () => { history.replaceState(null, "", "#znaki"); showTab(true); };
+window.addEventListener("hashchange", () => {
+  if(location.hash === "#znaki") { showTab(true); window.scrollTo({top:0}); }
+});
+showTab(location.hash === "#znaki");
 
 /* Лист кодов лежит рядом со страницей только на сайте; в артефакте его нет. */
 if(HOSTED) $("mpdf").hidden = false;
